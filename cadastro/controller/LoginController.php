@@ -14,32 +14,48 @@ class LoginController
     
     public function login($email, $senha)
     {
-        $usuario = new Usuario($this->banco);
-        $usuario->email = $email;
-
         $conexao = $this->banco->conectar();
 
-        $stmt = $conexao->prepare($usuario->login());
-        $stmt->bind_param("s", $usuario->email);
-        $stmt->execute();
-        $stmt->store_result();
+        $usuario = new Usuario($conexao);
+        $usuario->email = $email;
 
-        if ($stmt->num_rows > 0)
-        {
-            $stmt->bind_result($senhaArmazenada);
-            $stmt->fetch();
- 
-            if (password_verify($senha, $senhaArmazenada))
-            {
-                echo "Login bem-sucedido!";
-                include 'index.php';
-            } else {
-                echo "Senha incorreta.";
-            }
-        } else {
-            echo "Email não encontrado.";
+        $stmt = $conexao->prepare($usuario->login());
+        if ($stmt === false) {
+            die("Erro na preparação da consulta: " . $conexao->error);
         }
 
+        $stmt->bind_param("s", $usuario->email);
+
+        if ($stmt->execute())
+        {
+            $stmt->store_result();
+
+            if ($stmt->num_rows > 0)
+            {
+                $stmt->bind_result($hashBD);
+
+                if ($stmt->fetch())
+                {
+                    if (password_verify($senha, $hashBD))
+                    {
+                        echo "Login bem-sucedido!";
+                        include '../index.php';
+                    } 
+                    else 
+                    {
+                        echo "Senha incorreta.";
+                    }
+                }
+            } 
+            else
+            {
+                echo "Email não encontrado.";
+            }
+        } 
+        else
+        {
+            echo "Erro ao executar a consulta: " . $stmt->error;
+        }
         $stmt->close();
         $this->banco->fecharConexao();
     }

@@ -12,14 +12,14 @@
     <div id="div-diff">
             <h2>Login</h2>
             </div>
-    <form action="Login.php?acao=login" method="post" id="form-box">
+    <form action="login.php?acao=login" method="post" id="form-box">
         
         <label class="label-cl" for="email">Email</label>
-        <input class="input-cl" type="text" name="email" id="email">
+        <input class="input-cl" type="text" name="email" id="email" required>
         <br><br>
 
         <label class="label-cl" for="senha">Senha</label>
-        <input class="input-cl" type="password" name="senha" id="senha">
+        <input class="input-cl" type="password" name="senha" id="senha" required>
         <br><br>
 
         <input id="login-btn" type="submit" value="Fazer login">
